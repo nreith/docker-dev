@@ -38,10 +38,12 @@ RUN \
     echo 'export JOBLIB_TEMP_FOLDER=/tmp' >> /home/ubuntu/.domino-defaults && \
     echo 'export LC_ALL=en_US.UTF-8' >> /home/ubuntu/.domino-defaults && \
     locale-gen en_US.UTF-8 && \
-    #Clean up
+    #clean up
     apt-get clean && \
+    apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* && \
     rm -Rf /tmp/*
+
 
 ENV LANG en_US.UTF-8
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
@@ -87,6 +89,8 @@ RUN \
     find /opt/conda/ -follow -type f -name '*.a' -delete && \
     find /opt/conda/ -follow -type f -name '*.js.map' -delete && \
     $CONDA_DIR/bin/conda clean -afy && \
+    apt-get clean && \
+    apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* && \
     rm -Rf /tmp/*
 
@@ -101,29 +105,55 @@ RUN \
     unzip workspace-configs.zip && \
     rm workspace-configs.zip && cp -Rf workspace-configs-*/. /var/opt/workspaces && \
     rm -rf /var/opt/workspaces/workspace-logos && rm -rf /tmp/workspace-configs-* && \
-#
-# # # # # #Install Jupyterlab from workspaces
+# # #Install Jupyterlab from workspaces
     chmod +x /var/opt/workspaces/Jupyterlab/install && \
     /var/opt/workspaces/Jupyterlab/install && \
-#
-# # # #Install Jupyter from workspaces
+# # #Install Jupyter from workspaces
     chmod +x /var/opt/workspaces/jupyter/install && \
     /var/opt/workspaces/jupyter/install && \
-#    
 #Required for VSCode
-   apt-get update && \
+    apt-get update && \
     apt-get install libssl1.0-dev node-gyp nodejs-dev nodejs=8.10* npm -y && \
     pip install python-language-server autopep8 flake8 && \
     rm -rf /var/lib/apt/lists/* && \
-#    
 # # #Install vscode from workspaces
     chmod +x /var/opt/workspaces/vscode/install && \
     /var/opt/workspaces/vscode/install && \
-#
 #Fix permissions so notebooks start
     chown -R ubuntu:ubuntu /home/ubuntu/.local/
+#clean up
+    apt-get clean && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -Rf /tmp/*
 
-# #Provide Sudo in container
-# RUN echo "ubuntu  ALL=NOPASSWD: ALL" >> /etc/sudoers
+
+
+RUN \
+#User-requested packages
+    conda config --add channels conda-forge
+    conda install -y \
+        keras \
+        keras-applications \
+        keras-preprocessing \
+        numpy \
+        pandas \
+        spacy \
+        tensorflow \
+        xlrd \
+        transformers && \
+    pip install torch && \
+#conda env for posterity
+    mkdir -p /opt/pyenvs && \
+    conda init bash; bash && \
+    conda activate base && \
+    conda env export > /opt/pyenvs/environment.yml && \
+#clean up
+    apt-get clean && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -Rf /tmp/* && \
+#Provide Sudo in container
+    echo "ubuntu  ALL=NOPASSWD: ALL" >> /etc/sudoers
 
 
