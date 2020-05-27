@@ -56,11 +56,6 @@ ENV PATH $CONDA_DIR/bin:$PATH
 ENV MINICONDA_VERSION 4.8.2     
 ENV MINICONDA_MD5 87e77f097f6ebb5127c77662dfc3165e
 
-export CONDA_DIR=/opt/conda
-export PATH=$CONDA_DIR/bin:$PATH 
-export MINICONDA_VERSION=py37_4.8.2
-export MINICONDA_MD5=87e77f097f6ebb5127c77662dfc3165e 
-
 #set env variables so they are available in Domino runs/workspaces
 RUN \
     echo 'export CONDA_DIR=/opt/conda' >> /home/ubuntu/.domino-defaults && \
