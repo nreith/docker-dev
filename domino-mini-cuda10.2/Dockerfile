@@ -9,8 +9,8 @@ LABEL maintainer="Nick Reith <nreith@gmail.com>"
 #### Utilities required by Domino ####
 ENV DEBIAN_FRONTEND noninteractive
 
-#create a Ubuntu User
 RUN \
+#create a Ubuntu User
     groupadd -g 12574 ubuntu && \
     useradd -u 12574 -g 12574 -m -N -s /bin/bash ubuntu && \
     apt-get update -y && \
@@ -53,11 +53,22 @@ ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 # https://repo.continuum.io/miniconda/
 ENV CONDA_DIR /opt/conda
 ENV PATH $CONDA_DIR/bin:$PATH 
-ENV MINICONDA_VERSION 4.8.2     
+ENV MINICONDA_VERSION py37_4.8.2     
 ENV MINICONDA_MD5 87e77f097f6ebb5127c77662dfc3165e
 
-#set env variables so they are available in Domino runs/workspaces
+ENV LANG en_US.UTF-8
+ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+
+# For debugging/interactive exec
+# export CONDA_DIR=/opt/conda
+# export PATH=$CONDA_DIR/bin:$PATH 
+# export MINICONDA_VERSION=py37_4.8.2     
+# export MINICONDA_MD5=87e77f097f6ebb5127c77662dfc3165e
+# export LANG=en_US.UTF-8
+# export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+
 RUN \
+#set env variables so they are available in Domino runs/workspaces
     echo 'export CONDA_DIR=/opt/conda' >> /home/ubuntu/.domino-defaults && \
     echo 'export PATH=$CONDA_DIR/bin:$PATH' >> /home/ubuntu/.domino-defaults  && \
     echo 'export PATH=/home/ubuntu/.local/bin:$PATH' >> /home/ubuntu/.domino-defaults && \
@@ -122,8 +133,8 @@ RUN \
     rm -rf /var/lib/apt/lists/* && \
     rm -Rf /tmp/*
 
+#### User-requested packages ####
 RUN \
-#User-requested packages
     conda config --add channels conda-forge && \
     conda install -y \
         keras \
