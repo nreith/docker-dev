@@ -19,17 +19,17 @@ RUN \
     apt-get update -y && \
     apt-get -y install software-properties-common && \
     apt-get -y upgrade && \
-    # CONFIGURE locales
+# CONFIGURE locales
     apt-get install -y locales && \
     locale-gen en_US.UTF-8 && \
     dpkg-reconfigure locales && \
-    # INSTALL common
+# INSTALL common
     apt-get -y install build-essential wget sudo curl apt-utils git vim python3-pip -y && \
-    #Install jdk
+#Install jdk
     apt-get install openjdk-8-jdk -y && \
     update-alternatives --config java && \
     echo 'export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64' >> /home/ubuntu/.domino-defaults && \
-    # ADD SSH start script for ssh'ing to run container in Domino <v4.0
+# ADD SSH start script for ssh'ing to run container in Domino <v4.0
     apt-get install -y openssh-server && \
     mkdir -p /scripts && \
     echo '#!/bin/bash' > /scripts/start-ssh && \
@@ -41,11 +41,10 @@ RUN \
     echo 'export JOBLIB_TEMP_FOLDER=/tmp' >> /home/ubuntu/.domino-defaults && \
     echo 'export LC_ALL=en_US.UTF-8' >> /home/ubuntu/.domino-defaults && \
     locale-gen en_US.UTF-8 && \
-    #clean up
+#clean up
     apt-get clean && \
     apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -Rf /tmp/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ENV LANG en_US.UTF-8
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
@@ -101,15 +100,14 @@ RUN \
     conda clean -afy && \
     apt-get clean && \
     apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -Rf /tmp/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 
 ###### Installing Notebooks,Workspaces,IDEs,etc ######
 
+RUN \
 # Clone in workspaces install scripts
 # Add workspace configuration files
-RUN \
     apt-get update && apt-get install -y unzip && \
     cd /tmp && \
     wget -q https://github.com/dominodatalab/workspace-configs/archive/2020q1-v4.zip -O workspace-configs.zip && \
@@ -126,7 +124,6 @@ RUN \
     apt-get update && \
     apt-get install libssl1.0-dev node-gyp nodejs-dev nodejs=8.10* npm -y && \
     pip install python-language-server autopep8 flake8 && \
-    rm -rf /var/lib/apt/lists/* && \
 # # #Install vscode from workspaces
     chmod +x /var/opt/workspaces/vscode/install && \
     /var/opt/workspaces/vscode/install && \
@@ -136,8 +133,9 @@ RUN \
     conda clean -afy && \
     apt-get clean && \
     apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -Rf /tmp/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+#Provide Sudo in container
+    echo "ubuntu  ALL=NOPASSWD: ALL" >> /etc/sudoers
 
 
 ###### User-requested packages ######
@@ -160,9 +158,6 @@ RUN \
     conda clean -afy && \
     apt-get clean && \
     apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -Rf /tmp/* && \
-#Provide Sudo in container
-    echo "ubuntu  ALL=NOPASSWD: ALL" >> /etc/sudoers
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 USER ubuntu
