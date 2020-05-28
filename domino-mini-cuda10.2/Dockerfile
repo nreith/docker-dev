@@ -6,7 +6,8 @@ LABEL maintainer="Nick Reith <nreith@gmail.com>"
 # The rest here is borrowed and adapted from
 # https://github.com/dominodatalab/Domino_Base_Images/blob/master/Domino_Minimal_Distribution/2019_q4_py3.7_r3.6/Dockerfile
 
-#### Utilities required by Domino ####
+
+###### Utilities required by Domino ######
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN \
@@ -44,17 +45,18 @@ RUN \
     rm -rf /var/lib/apt/lists/* && \
     rm -Rf /tmp/*
 
-
 ENV LANG en_US.UTF-8
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
-######Install Python 4.8.2 and Miniconda######
 
+###### Install Python 4.8.2 and Miniconda ######
 # https://repo.continuum.io/miniconda/
+
 ENV CONDA_DIR /opt/conda
 ENV PATH $CONDA_DIR/bin:$PATH 
 ENV MINICONDA_VERSION py37_4.8.2     
 ENV MINICONDA_MD5 87e77f097f6ebb5127c77662dfc3165e
+ENV PATH=$PATH:/opt/conda/bin
 
 ENV LANG en_US.UTF-8
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
@@ -82,25 +84,26 @@ RUN \
 # Use Mini-conda's pip
     ln -s $CONDA_DIR/bin/pip /usr/bin/pip && \
     pip install --upgrade pip && \
-# Use Mini-conda's python   
+# Use Mini-conda's python
     ln -s $CONDA_DIR/bin/python /usr/local/bin/python && \
     ln -s $CONDA_DIR/anaconda/bin/python /usr/local/bin/python3 && \
 #Set permissions
     chown -R ubuntu:ubuntu  $CONDA_DIR && \
 ###Install Domino Dependencies ####  
-   $CONDA_DIR/bin/conda install -y -c conda-forge uWSGI==2.0.18 && \
+   conda install -y -c conda-forge uWSGI==2.0.18 && \
 #packages used for model APIs
     pip install Flask==1.0.2 Flask-Compress==1.4.0 Flask-Cors==3.0.6 jsonify==0.5 && \
 #clean up
     find /opt/conda/ -follow -type f -name '*.a' -delete && \
     find /opt/conda/ -follow -type f -name '*.js.map' -delete && \
-    $CONDA_DIR/bin/conda clean -afy && \
+    conda clean -afy && \
     apt-get clean && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* && \
     rm -Rf /tmp/*
 
-#### Installing Notebooks,Workspaces,IDEs,etc ####
+
+###### Installing Notebooks,Workspaces,IDEs,etc ######
 
 # Clone in workspaces install scripts
 # Add workspace configuration files
@@ -128,36 +131,36 @@ RUN \
 #Fix permissions so notebooks start
     chown -R ubuntu:ubuntu /home/ubuntu/.local/ && \
 #clean up
+    conda clean -afy && \
     apt-get clean && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* && \
     rm -Rf /tmp/*
 
-#### User-requested packages ####
-RUN \
-    conda config --add channels conda-forge && \
-    conda install -y \
-        keras \
-        keras-applications \
-        keras-preprocessing \
-        numpy \
-        pandas \
-        spacy \
-        tensorflow \
-        xlrd \
-        transformers && \
-    pip install torch && \
-#conda env for posterity
-    mkdir -p /opt/pyenvs && \
-    conda init bash; bash && \
-    conda activate base && \
-    conda env export > /opt/pyenvs/environment.yml && \
-#clean up
-    apt-get clean && \
-    apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -Rf /tmp/* && \
-#Provide Sudo in container
-    echo "ubuntu  ALL=NOPASSWD: ALL" >> /etc/sudoers
 
-
+# ###### User-requested packages ######
+# RUN \
+#     conda config --add channels conda-forge && \
+#     conda install -y \
+#         keras \
+#         keras-applications \
+#         keras-preprocessing \
+#         numpy \
+#         pandas \
+#         spacy \
+#         tensorflow \
+#         xlrd \
+#         transformers && \
+#     pip install torch && \
+# #conda env for posterity
+#     mkdir -p /opt/pyenvs && \
+#     #conda init bash; bash && \
+#     #conda activate base && \
+#     conda env export > /opt/pyenvs/environment.yml && \
+# #clean up
+#     apt-get clean && \
+#     apt-get autoremove -y && \
+#     rm -rf /var/lib/apt/lists/* && \
+#     rm -Rf /tmp/* && \
+# #Provide Sudo in container
+#     echo "ubuntu  ALL=NOPASSWD: ALL" >> /etc/sudoers
