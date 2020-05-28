@@ -153,7 +153,7 @@ RUN \
         transformers && \
     pip install torch && \
 #conda env for posterity
-    conda env export > /opt/conda/environment.yml && \
+    conda env export -n base > /opt/conda/environment.yml && \
 #clean up
     conda clean -afy && \
     apt-get clean && \
