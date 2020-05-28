@@ -115,18 +115,16 @@ RUN \
     chmod +x /var/opt/workspaces/vscode/install && \
     /var/opt/workspaces/vscode/install && \
 #Fix permissions so notebooks start
-    chown -R ubuntu:ubuntu /home/ubuntu/.local/
+    chown -R ubuntu:ubuntu /home/ubuntu/.local/ && \
 #clean up
     apt-get clean && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* && \
     rm -Rf /tmp/*
 
-
-
 RUN \
 #User-requested packages
-    conda config --add channels conda-forge
+    conda config --add channels conda-forge && \
     conda install -y \
         keras \
         keras-applications \
