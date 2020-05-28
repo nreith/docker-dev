@@ -2,6 +2,8 @@ FROM nvidia/cuda:10.2-cudnn7-runtime-ubuntu18.04
 
 LABEL maintainer="Nick Reith <nreith@gmail.com>"
 
+SHELL ["/bin/bash", "-c"]
+
 # The base is pulled from the above nvidia/cuda:10.2 image
 # The rest here is borrowed and adapted from
 # https://github.com/dominodatalab/Domino_Base_Images/blob/master/Domino_Minimal_Distribution/2019_q4_py3.7_r3.6/Dockerfile
@@ -138,29 +140,29 @@ RUN \
     rm -Rf /tmp/*
 
 
-# ###### User-requested packages ######
-# RUN \
-#     conda config --add channels conda-forge && \
-#     conda install -y \
-#         keras \
-#         keras-applications \
-#         keras-preprocessing \
-#         numpy \
-#         pandas \
-#         spacy \
-#         tensorflow \
-#         xlrd \
-#         transformers && \
-#     pip install torch && \
-# #conda env for posterity
-#     mkdir -p /opt/pyenvs && \
-#     #conda init bash; bash && \
-#     #conda activate base && \
-#     conda env export > /opt/pyenvs/environment.yml && \
-# #clean up
-#     apt-get clean && \
-#     apt-get autoremove -y && \
-#     rm -rf /var/lib/apt/lists/* && \
-#     rm -Rf /tmp/* && \
-# #Provide Sudo in container
-#     echo "ubuntu  ALL=NOPASSWD: ALL" >> /etc/sudoers
+###### User-requested packages ######
+RUN \
+    conda config --add channels conda-forge && \
+    conda install -y \
+        keras \
+        keras-applications \
+        keras-preprocessing \
+        numpy \
+        pandas \
+        spacy \
+        tensorflow \
+        xlrd \
+        transformers && \
+    pip install torch && \
+#conda env for posterity
+    conda env export > /opt/conda/environment.yml && \
+#clean up
+    conda clean -afy && \
+    apt-get clean && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -Rf /tmp/* && \
+#Provide Sudo in container
+    echo "ubuntu  ALL=NOPASSWD: ALL" >> /etc/sudoers
+
+USER ubuntu
