@@ -128,7 +128,7 @@ RUN \
     chmod +x /var/opt/workspaces/vscode/install && \
     /var/opt/workspaces/vscode/install && \
 #Fix permissions so notebooks start
-    chown -R ubuntu:ubuntu /home/ubuntu/.local/ && \
+    chown -R ubuntu:ubuntu /home/ubuntu /opt && \
 #clean up
     conda clean -afy && \
     apt-get clean && \
