@@ -1,10 +1,10 @@
-FROM nvidia/cuda:10.2-cudnn7-runtime-ubuntu18.04
+FROM tensorflow/tensorflow:2.1.1-gpu
 
 LABEL maintainer="Nick Reith <nreith@gmail.com>"
 
 SHELL ["/bin/bash", "-c"]
 
-# The base is pulled from the above nvidia/cuda:10.2 image
+# The base is pulled from the above tensorflow/tensorflow:2.1.1-gpu
 # The rest here is borrowed and adapted from
 # https://github.com/dominodatalab/Domino_Base_Images/blob/master/Domino_Minimal_Distribution/2019_q4_py3.7_r3.6/Dockerfile
 
@@ -148,7 +148,7 @@ RUN \
         numpy \
         pandas \
         spacy \
-        tensorflow \
+        tensorflow-gpu \
         xlrd \
         transformers && \
     pip install torch && \
