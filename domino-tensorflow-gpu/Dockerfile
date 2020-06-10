@@ -168,6 +168,7 @@ RUN \
 #conda env for posterity
     conda env export -n base > /opt/conda/environment.yml && \
 # install 440 for nvidia driver
+    apt-get update && \
     apt-get install -y nvidia-driver-440 && \
 #clean up
     conda clean -afy && \
