@@ -167,6 +167,9 @@ RUN \
     # pip install torch && \
 #conda env for posterity
     conda env export -n base > /opt/conda/environment.yml && \
+# uninstall version 430 and install 440 for nvidia driver instead
+    apt-get remove nvidia-driver-430 && \
+    apt-get install nvidia-driver-440 && \
 #clean up
     conda clean -afy && \
     apt-get clean && \
