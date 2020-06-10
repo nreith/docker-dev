@@ -1,5 +1,4 @@
 FROM tensorflow/tensorflow:2.1.1-gpu
-#FROM nvidia/cuda:10.2-cudnn7-runtime-ubuntu18.04
 
 LABEL maintainer="Nick Reith <nreith@gmail.com>"
 
@@ -13,7 +12,7 @@ SHELL ["/bin/bash", "-c"]
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN \
-#create a Ubuntu User
+# create a Ubuntu User
     groupadd -g 12574 ubuntu && \
     useradd -u 12574 -g 12574 -m -N -s /bin/bash ubuntu && \
     apt-get update -y && \
@@ -25,7 +24,7 @@ RUN \
     dpkg-reconfigure locales && \
 # INSTALL common
     apt-get -y install build-essential wget sudo curl apt-utils git vim python3-pip -y && \
-#Install jdk
+# Install jdk
     apt-get install openjdk-8-jdk -y && \
     update-alternatives --config java && \
     echo 'export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64' >> /home/ubuntu/.domino-defaults && \
@@ -41,7 +40,9 @@ RUN \
     echo 'export JOBLIB_TEMP_FOLDER=/tmp' >> /home/ubuntu/.domino-defaults && \
     echo 'export LC_ALL=en_US.UTF-8' >> /home/ubuntu/.domino-defaults && \
     locale-gen en_US.UTF-8 && \
-#clean up
+# Provide Sudo in container
+    echo "ubuntu  ALL=NOPASSWD: ALL" >> /etc/sudoers
+# clean up
     apt-get clean && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -71,7 +72,7 @@ ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 # export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
 RUN \
-#set env variables so they are available in Domino runs/workspaces
+# set env variables so they are available in Domino runs/workspaces
     echo 'export CONDA_DIR=/opt/conda' >> /home/ubuntu/.domino-defaults && \
     echo 'export PATH=$CONDA_DIR/bin:$PATH' >> /home/ubuntu/.domino-defaults  && \
     echo 'export PATH=/home/ubuntu/.local/bin:$PATH' >> /home/ubuntu/.domino-defaults && \
@@ -80,7 +81,7 @@ RUN \
     echo "${MINICONDA_MD5} Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh" | md5sum -c - && \
     /bin/bash Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh -f -b -p $CONDA_DIR && \
     rm Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh && \
-#make conda folder permissioned for ubuntu user
+# make conda folder permissioned for ubuntu user
     chown ubuntu:ubuntu -R $CONDA_DIR && \
 # Use Mini-conda's pip
     ln -sf $CONDA_DIR/bin/pip /usr/bin/pip && \
@@ -88,13 +89,13 @@ RUN \
 # Use Mini-conda's python
     ln -sf $CONDA_DIR/bin/python /usr/local/bin/python && \
     ln -sf $CONDA_DIR/anaconda/bin/python /usr/local/bin/python3 && \
-#Set permissions
+# Set permissions
     chown -R ubuntu:ubuntu $CONDA_DIR && \
-###Install Domino Dependencies ####  
+### Install Domino Dependencies ####  
     conda install -y -c conda-forge uWSGI==2.0.18 && \
-#packages used for model APIs
+# packages used for model APIs
     pip install Flask==1.0.2 Flask-Compress==1.4.0 Flask-Cors==3.0.6 jsonify==0.5 && \
-#clean up
+# clean up
     find /opt/conda/ -follow -type f -name '*.a' -delete && \
     find /opt/conda/ -follow -type f -name '*.js.map' -delete && \
     conda clean -afy && \
@@ -102,59 +103,21 @@ RUN \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+
 ###### db-drivers and proxy config ######
 RUN \
     apt-get update && apt-get install -y git git-lfs && \
     cd /opt && git clone https://github.com/nreith/devops-scripts.git && \
     cd devops-scripts/scripts && chmod +x set_proxy unset_proxy && cp set_proxy unset_proxy /usr/local/bin/ && \
-    # to set proxy, later run this:
-    # set_proxy -h $PROXY_HOST -p $PROXY_PORT && \
+# to set proxy, later run this:
+# set_proxy -h $PROXY_HOST -p $PROXY_PORT && \
     source install_cli_tools.sh && \
     install_ms_sql_drivers17 && \
     install_teradata_sql_drivers16 && \
-    #clean up
+# clean up
     apt-get clean && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-
-###### User-requested packages - Nvidia Drivers - Tensorflow etc. ######
-ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/extras/CUPTI/lib64
-
-# RUN \
-#     # Add NVIDIA package repositories
-#     export DEBIAN_FRONTEND=noninteractive && \
-#     apt-get update && apt-get -y install gnupg2 wget curl sudo && \
-#     cd /tmp && wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-repo-ubuntu1804_10.1.243-1_amd64.deb && \
-#     apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub && \
-#     echo "Y" | apt-get -y install ./cuda-repo-ubuntu1804*.deb && \
-#     apt-get update && \
-#     wget http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64/nvidia-machine-learning-repo-ubuntu1804_1.0.0-1_amd64.deb && \
-#     echo "Y" | apt-get -y install ./nvidia-machine-learning-repo-ubuntu*.deb && \
-#     rm /etc/apt/sources.list.d/nvidia-machine* && \
-#     apt-get update && \
-#     #
-#     # Install NVIDIA driver
-#     apt-get install -y --no-install-recommends nvidia-driver-430 && \
-#     #; apt-get install -f -y && \
-#     # Reboot. Check that GPUs are visible using the command: nvidia-smi
-#     #
-#     apt-get update && apt-get -y upgrade && \
-#     # Install development and runtime libraries (~4GB)
-#     apt-get install -y --allow-downgrades --allow-change-held-packages \
-#         cuda-10-1 \
-#         libcudnn7=7.6.4.38-1+cuda10.1  \
-#         libcudnn7-dev=7.6.4.38-1+cuda10.1 && \
-#     # Install TensorRT. Requires that libcudnn7 is installed above.
-#     apt-get install -y --no-install-recommends \
-#     	libnvinfer6=6.0.1-1+cuda10.1 \
-#         libnvinfer-dev=6.0.1-1+cuda10.1 \
-#         libnvinfer-plugin6=6.0.1-1+cuda10.1 && \
-#     #
-#     # clean up
-#     apt-get clean && \
-#     apt-get autoremove -y && \
-#     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 
 ###### Installing Notebooks,Workspaces,IDEs,etc ######
@@ -167,28 +130,26 @@ RUN \
     unzip workspace-configs.zip && \
     rm workspace-configs.zip && cp -Rf workspace-configs-*/. /var/opt/workspaces && \
     rm -rf /var/opt/workspaces/workspace-logos && rm -rf /tmp/workspace-configs-* && \
-# # #Install Jupyterlab from workspaces
+### Install Jupyterlab from workspaces
     chmod +x /var/opt/workspaces/Jupyterlab/install && \
     /var/opt/workspaces/Jupyterlab/install && \
-# # #Install Jupyter from workspaces
+### Install Jupyter from workspaces
     chmod +x /var/opt/workspaces/jupyter/install && \
     /var/opt/workspaces/jupyter/install && \
-#Required for VSCode
+# Required for VSCode
     apt-get update && \
     apt-get install libssl1.0-dev node-gyp nodejs-dev nodejs=8.10* npm -y && \
     pip install python-language-server autopep8 flake8 && \
-# # #Install vscode from workspaces
+### Install vscode from workspaces
     chmod +x /var/opt/workspaces/vscode/install && \
     /var/opt/workspaces/vscode/install && \
-#Fix permissions so notebooks start
+# Fix permissions so notebooks start
     chown -R ubuntu:ubuntu /home/ubuntu /opt && \
-#clean up
+# clean up
     conda clean -afy && \
     apt-get clean && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-#Provide Sudo in container
-    echo "ubuntu  ALL=NOPASSWD: ALL" >> /etc/sudoers
 
 
 ###### User-requested packages ######
@@ -212,5 +173,6 @@ RUN \
     apt-get clean && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 
 USER ubuntu
