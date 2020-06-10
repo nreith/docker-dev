@@ -10,6 +10,8 @@ SHELL ["/bin/bash", "-c"]
 
 ###### Utilities required by Domino ######
 ENV DEBIAN_FRONTEND noninteractive
+ENV LANG en_US.UTF-8
+ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
 RUN \
 # create a Ubuntu User
@@ -41,14 +43,11 @@ RUN \
     echo 'export LC_ALL=en_US.UTF-8' >> /home/ubuntu/.domino-defaults && \
     locale-gen en_US.UTF-8 && \
 # Provide Sudo in container
-    echo "ubuntu  ALL=NOPASSWD: ALL" >> /etc/sudoers
+    echo "ubuntu  ALL=NOPASSWD: ALL" >> /etc/sudoers && \
 # clean up
     apt-get clean && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-ENV LANG en_US.UTF-8
-ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
 
 ###### Install Python 4.8.2 and Miniconda ######
@@ -149,7 +148,7 @@ RUN \
     conda clean -afy && \
     apt-get clean && \
     apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 
 ###### User-requested packages ######
