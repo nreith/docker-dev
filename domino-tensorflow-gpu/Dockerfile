@@ -153,18 +153,26 @@ RUN \
 
 ###### User-requested packages ######
 RUN \
-    conda config --add channels conda-forge && \
+    conda config --prepend channels intel && \
+    conda config --prepend channels conda-forge && \
     conda install -y \
+        gensim \
         keras \
         keras-applications \
         keras-preprocessing \
+	imbalanced-learn \
+	nltk \
         numpy \
         pandas \
+	scikit-learn \
+	seaborn \
         spacy \
         tensorflow-gpu \
-        xlrd \
-        transformers && \
-    # pip install torch && \
+	transformers \
+	tqdm \
+	xgboost \
+        xlrd && \
+    pip install torch && \
 #conda env for posterity
     conda env export -n base > /opt/conda/environment.yml && \
 # install 440 for nvidia driver
