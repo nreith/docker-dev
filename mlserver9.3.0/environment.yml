@@ -1,4 +1,4 @@
-name: base
+name: root
 channels:
 - conda-forge
 - defaults
@@ -14,7 +14,6 @@ dependencies:
 - requests=2.18.4=py35_1
 - six=1.10.0=py35_1
 - urllib3=1.22=py35_0
-- win_inet_pton=1.0.1=py35_1
 - _license=1.1=py35_1
 - _nb_ext_conf=0.3.0=py35_0
 - alabaster=0.7.9=py35_0
@@ -229,7 +228,4 @@ dependencies:
   - thinc==7.0.8
   - tqdm==4.32.2
   - wasabi==0.2.2
-  - win-inet-pton==1.0.1
   - win-unicode-console==0.5
-prefix: /opt/conda/bin
-
